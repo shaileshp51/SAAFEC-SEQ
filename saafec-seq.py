@@ -55,21 +55,32 @@ def sequences_features(target_seqn, mutation_resid, wild_aa):
 
 
 def run_psiblast(config, file_name, load_existing=False):
-    if not (load_existing and os.path.isfile(file_name+".pssm")):
-        os.system(
-            config["PSIBLASTDIR"]
-            + "/psiblast -query "
-            + file_name
-            + " -num_threads "
-            + str(config["BLAST_NUM_THREADS"])
-            + " -db "
-            + config["PSIBLASTBASE"]
-            + " -num_iterations 3 -out "
-            + file_name
-            + ".out -out_ascii_pssm "
-            + file_name
-            + ".pssm 2>/dev/null"
-        )
+    if not (load_existing and os.path.isfile(file_name + ".pssm")):
+        psiblast_found = os.path.isfile(os.path.join(config["PSIBLASTDIR"], "psiblast")) 
+        psibloatdb_found = os.path.isdir(config["PSIBLASTBASE"])
+        errors = []
+        if not psiblast_found:
+            errors.append(f"PSIBLAST exe '{os.path.join(config['PSIBLASTDIR'], 'psiblast')}' is missing.")
+        if not psibloatdb_found:
+            errors.append(f"PSIBLASTBASE dir '{config['PSIBLASTBASE']}' is missing.")
+        if psiblast_found and psibloatdb_found:
+            os.system(
+                config["PSIBLASTDIR"]
+                + "/psiblast -query "
+                + file_name
+                + " -num_threads "
+                + str(config["BLAST_NUM_THREADS"])
+                + " -db "
+                + config["PSIBLASTBASE"]
+                + " -num_iterations 3 -out "
+                + file_name
+                + ".out -out_ascii_pssm "
+                + file_name
+                + ".pssm 2>/dev/null"
+            )
+        else:
+            print("ERROR>> " + "\nERROR>> ".join(errors))
+            sys.exit()
 
 
 def pssm_check(file_name):
@@ -80,7 +91,7 @@ def pssm_check(file_name):
         sys.exit()
 
 
-def psepssm(file, lamda = 7):
+def psepssm(file, lamda=7):
     pssm = []
     features = []
     for line1 in open(file + ".pssm"):
@@ -106,7 +117,7 @@ def psepssm(file, lamda = 7):
     return features
 
 
-def mpssmscores(file_name, position, windows = 7):
+def mpssmscores(file_name, position, windows=7):
     pssm = []
     line1 = []
     for line2 in open(file_name + ".pssm"):
@@ -130,7 +141,7 @@ def mpssmscores(file_name, position, windows = 7):
     return pssm
 
 
-def file_loop(config, chainA, seqnA, mutation_list):
+def file_loop(config, chainA, seqnA, mutation_list, verbose):
     results = []
     delete_index = 0
     for mt_index, mt_info in enumerate(mutation_list):
@@ -159,14 +170,15 @@ def file_loop(config, chainA, seqnA, mutation_list):
             pssm_check(chainA)
         label = label + mpssmscores(chainA, mutation_resid)
         label = label + psepssm(chainA)
-        print(
-            "Mutation features",
-            chainA,
-            mutation_resid,
-            wild_aa,
-            mutation_aa,
-            label,
-        )
+        if verbose:
+            print(
+                "Mutation features: ",
+                chainA,
+                mutation_resid,
+                wild_aa,
+                mutation_aa,
+                label,
+            )
         results.append(pred_feature(label, wild_aa, mutation_aa))
     return results
 
@@ -196,22 +208,28 @@ def argument_parser():
     parser = argparse.ArgumentParser(
         prog=f"saafec-seq.py",
         description=(
-                f"SAAFEC-SEQ_v{__version__} : "
-                "Predict the free energy change of folding due to "
-                "point mutation for protein from sequence."
+            f"SAAFEC-SEQ_v{__version__} : "
+            "Predict the free energy change of folding due to "
+            "point mutation for protein from sequence."
         ),
     )
     parser.add_argument(
-        "-A",
-        "--mutation-chain",
-        help="filename of the fasta sequence of the mutation chain",
+        "-i",
+        "--input-sequence",
+        help="fasta filename of the protein sequence",
         required=True,
     )
     parser.add_argument(
         "-o",
         "--output",
-        help="output file name for the predictions",
-        default="output.txt",
+        help="output file name for the predictions (default: output.out)",
+        default="output.out",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="print verbose messages",
+        action="store_true",
     )
     group1 = parser.add_argument_group(
         "single point-mutation", "single point-mutation information"
@@ -220,19 +238,19 @@ def argument_parser():
         "-p",
         "--position",
         type=int,
-        help="position of mutation position (starting index is 1)",
+        help="position of mutation (starting index is 1)",
     )
     group1.add_argument(
         "-w",
         "--wild-type",
         type=validate_aa_code,
-        help="wild-type amino acid's 1 letter code",
+        help="wild-type amino acid's one-letter code",
     )
     group1.add_argument(
         "-m",
         "--mutant",
         type=validate_aa_code,
-        help="mutant amino acid's 1 letter code",
+        help="mutant amino acid's one-letter code",
     )
     group2 = parser.add_argument_group(
         "multiple point-mutations", "multiple point-mutations listing"
@@ -294,8 +312,8 @@ def validate_input(args):
     results["mt_seqn"] = ""
     mutations_list = []
     results["errors"], results["warns"] = [], []
-    if is_file(args.mutation_chain):
-        results["mt_seqn"] = read_fasta(args.mutation_chain)
+    if is_file(args.input_sequence):
+        results["mt_seqn"] = read_fasta(args.input_sequence)
     if (not args.mutation_list_file is None) and is_file(args.mutation_list_file):
         for line in open(args.mutation_list_file):
             if not line.strip() or line.strip().startswith("#"):
@@ -341,9 +359,10 @@ def main():
     print("Position Wild Mutant ddG Type", file=f)
     preds = file_loop(
         config,
-        args.mutation_chain,
+        args.input_sequence,
         results["mt_seqn"],
-        results["mt_list"]
+        results["mt_list"],
+        args.verbose,
     )
     for mt, pred in zip(results["mt_list"], preds):
         print(mt[0], mt[1], mt[2], pred, file=f)
