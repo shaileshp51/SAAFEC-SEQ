@@ -4,9 +4,9 @@
 2. Please change the installation directory of blast
 3. run the python script:
  1) single mutation
- python Mutation_pred.py -A protein_sequence -p position -w wild -m mutant -o outputfile(Optional)
+ python saafec-seq.py -i protein_sequence -p position -w wild -m mutant -o outputfile(Optional)
  2) mutations list
- python Mutation_pred.py -A protein_sequence -f mutation_list -o outputfile
+ python saafec-seq.py -i protein_sequence -f mutation_list -o outputfile
 
 Example:
-python Mutation_pred.py -A fastaA -p 182 -w C -m A
+python saafec-seq.py -i fastaA -p 182 -w C -m A
