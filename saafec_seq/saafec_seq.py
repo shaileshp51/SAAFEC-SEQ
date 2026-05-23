@@ -14,7 +14,7 @@ from typing import Iterable
 import numpy as np
 import xgboost as xgb
 
-from utils.protseqfeature import (
+from saafec_seq.utils.protseqfeature import (
     aa1_label,
     aa1_map,
     aa1_mttype_label,
