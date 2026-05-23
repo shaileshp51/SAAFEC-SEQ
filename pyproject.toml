@@ -26,13 +26,15 @@ dependencies = [
 Homepage = "https://compbio.clemson.edu/saafec-seq/"
 Repository = "https://github.com/shaileshp51/SAAFEC-SEQ"
 
+[project.scripts]
+saafec-seq = "saafec_seq.saafec_seq:main"
+
 [tool.setuptools]
 include-package-data = true
-script-files = ["saafec-seq/saafec-seq.py"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["utils*"]
+include = ["saafec_seq", "saafec_seq.*"]
 
-[tool.setuptools.data-files]
-"data" = ["data/regression.model"]
+[tool.setuptools.package-data]
+"saafec_seq" = ["data/regression.model"]
