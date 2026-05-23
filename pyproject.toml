@@ -8,12 +8,9 @@ version = "1.0.0"
 description = "SAAFEC-SEQ: sequence-based prediction of protein stability changes caused by missense mutations"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
-license = { text = "AGPL-3.0-or-later" }
+license = "AGPL-3.0-or-later"
 authors = [
   { name = "Li, Gen" },
-  { name = "Panday, Shailesh Kumar" }
-]
-maintainers = [
   { name = "Panday, Shailesh Kumar" }
 ]
 dependencies = [
@@ -31,7 +28,7 @@ Repository = "https://github.com/shaileshp51/SAAFEC-SEQ"
 
 [tool.setuptools]
 include-package-data = true
-script-files = ["saafec-seq.py"]
+scripts = ["saafec-seq/saafec-seq.py"]
 
 [tool.setuptools.packages.find]
 where = ["."]
