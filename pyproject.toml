@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "saafec-seq"
+version = "1.0.0"
+description = "SAAFEC-SEQ: sequence-based prediction of protein stability changes caused by missense mutations"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { text = "AGPL-3.0-or-later" }
+authors = [
+  { name = "CompBio" }
+]
+dependencies = [
+  "numpy==1.26.4",
+  "scipy==1.14.1",
+  "pandas==2.2.3",
+  "scikit-learn==1.6.0",
+  "xgboost==0.82",
+  "requests==2.32.3",
+]
+
+[project.urls]
+Homepage = "https://compbio.clemson.edu"
+Repository = "https://github.com/COMPBIO/SAAFEC-SEQ"
+
+[tool.setuptools]
+include-package-data = true
+script-files = ["saafec-seq.py"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["utils*"]
+
+[tool.setuptools.data-files]
+"data" = ["data/regression.model"]

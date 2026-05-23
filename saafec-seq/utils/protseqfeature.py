@@ -2,11 +2,6 @@
 # coding: utf-8
 
 
-import os
-import sys, getopt
-import numpy as np
-import xgboost as xgb
-
 from collections import namedtuple
 from enum import Enum
 
@@ -340,19 +335,19 @@ def validate_aa_code(aa):
     return code
 
 
-def net_flexibility2(aa1_map, wild, mutant):
+def net_flexibility(aa1_map, wild, mutant):
     wt_flex = aa1_map[wild].flexibility if wild in aa1_map else 0
     mt_flex = aa1_map[mutant].flexibility if mutant in aa1_map else 0
     return int(mt_flex) - int(wt_flex)
 
 
-def net_volume2(aa1_map, wild, mutant):
+def net_volume(aa1_map, wild, mutant):
     wt_volm = aa1_map[wild].volume if wild in aa1_map else 0
     mt_volm = aa1_map[mutant].volume if mutant in aa1_map else 0
     return "{:0.1f}".format(float(mt_volm) - float(wt_volm))
 
 
-def net_hydrophobicity2(aa1_map, wild, mutant):
+def net_hydrophobicity(aa1_map, wild, mutant):
     """Return ddG(mt-wt)
 
     Parameters
@@ -366,7 +361,7 @@ def net_hydrophobicity2(aa1_map, wild, mutant):
     return "{:0.1f}".format(float(mt_hydphob) - float(wt_hydphob))
 
 
-def mutation_chemical2(aa1_map, wild, mutant):
+def mutation_chemical(aa1_map, wild, mutant):
     wt_chem = aa1_map[wild].chemical_property.value
     mt_chem = aa1_map[mutant].chemical_property.value
     n_chem_props = len(AAChemicalProperty)
@@ -374,7 +369,7 @@ def mutation_chemical2(aa1_map, wild, mutant):
     return label_chem
 
 
-def mutation_hydrophobicity2(aa1_map, wild, mutant):
+def mutation_hydrophobicity(aa1_map, wild, mutant):
     wt_hydrphbcls = aa1_map[wild].hydrophobicity_class.value
     mt_hydrphbcls = aa1_map[mutant].hydrophobicity_class.value
     n_hydrphbcls = len(AAHydrophobicityClass)
@@ -382,7 +377,7 @@ def mutation_hydrophobicity2(aa1_map, wild, mutant):
     return label_indx
 
 
-def mutation_polarity2(aa1_map, wild, mutant):
+def mutation_polarity(aa1_map, wild, mutant):
     wt_pol = aa1_map[wild].polarity.value
     # Done to emulate the manual label-encoding used in original code
     if aa1_map[wild].polarity in [AAPolarity.NONPOLAR, AAPolarity.POLAR_BASIC]:
@@ -393,7 +388,7 @@ def mutation_polarity2(aa1_map, wild, mutant):
     return label_polarity
 
 
-def mutation_size2(aa1_map, wild, mutant):
+def mutation_size(aa1_map, wild, mutant):
     wt_size = aa1_map[wild].size.value
     mt_size = aa1_map[mutant].size.value
     n_size = len(AASize)
@@ -401,7 +396,7 @@ def mutation_size2(aa1_map, wild, mutant):
     return label_size
 
 
-def mutation_hbonds2(aa1_map, wild, mutant):
+def mutation_hbonds(aa1_map, wild, mutant):
     wt_hb = aa1_map[wild].hydrogen_bonding.value
     # Done to emulate the manual label-encoding used in original code
     if aa1_map[wild].hydrogen_bonding in [
@@ -415,7 +410,7 @@ def mutation_hbonds2(aa1_map, wild, mutant):
     return label_hb
 
 
-def mutation_type2(aa1_label, wild, mutant):
+def mutation_type(aa1_label, wild, mutant):
     wt_lbl, mt_lbl = int(aa1_label.get(wild, 0)), int(aa1_label.get(mutant, 0))
     if wild == mutant:
         return (wt_lbl, mt_lbl, 0)
