@@ -10,7 +10,11 @@ readme = "README.md"
 requires-python = ">=3.11,<3.12"
 license = { text = "AGPL-3.0-or-later" }
 authors = [
-  { name = "CompBio" }
+  { name = "Li, Gen" },
+  { name = "Panday, Shailesh Kumar" }
+]
+maintainers = [
+  { name = "Panday, Shailesh Kumar" }
 ]
 dependencies = [
   "numpy==1.26.4",
@@ -22,8 +26,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://compbio.clemson.edu"
-Repository = "https://github.com/COMPBIO/SAAFEC-SEQ"
+Homepage = "https://compbio.clemson.edu/saafec-seq/"
+Repository = "https://github.com/shaileshp51/SAAFEC-SEQ"
 
 [tool.setuptools]
 include-package-data = true

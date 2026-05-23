@@ -525,6 +525,15 @@ def main():
         for mt, pred in zip(results["mt_list"], preds):
             print(mt[0], mt[1], mt[2], pred, file=f)
 
+    print()
+    print("Please cite SAAFEC-SEQ when using its results in a publication:")
+    print(
+        "Li, G.; Panday, S.K.; Alexov, E. "
+        "SAAFEC-SEQ: A Sequence-Based Method for Predicting the Effect of "
+        "Single Point Mutations on Protein Thermodynamic Stability. "
+        "Int. J. Mol. Sci. 2021, 22, 606."
+    )
+
 
 if __name__ == "__main__":
     main()
