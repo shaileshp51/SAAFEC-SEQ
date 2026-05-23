@@ -28,7 +28,7 @@ Repository = "https://github.com/shaileshp51/SAAFEC-SEQ"
 
 [tool.setuptools]
 include-package-data = true
-script-files = ["saafec-seq/saafec-seq"]
+script-files = ["saafec-seq/saafec-seq.py"]
 
 [tool.setuptools.packages.find]
 where = ["."]
