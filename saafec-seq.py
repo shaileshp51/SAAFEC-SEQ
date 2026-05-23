@@ -13,13 +13,28 @@ __version__ = 1.0
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 
+PROGRAM = "SAAFEC-SEQ"
+
 def configure():
     config = {}
-    config["PSIBLASTDIR"] = "/zfs/compbio/DELPHI/Script_2020-08-05/SAAFEC-SEQ/blast/"
-    config[
-        "PSIBLASTBASE"
-    ] = "/zfs/compbio/DELPHI/Script_2020-08-05/SAAFEC-SEQ/Uniref100/uniref100"
-    config["BLAST_NUM_THREADS"] = 6
+    config["PSIBLASTDIR"] = os.environ.get(
+        "SAAFEC_SEQ_PSIBLAST_BIN_DIR",
+        "/opt/shared/blast"
+    )
+    config["PSIBLASTDBDIR"] = os.environ.get(
+        "SAAFEC_SEQ_UNIREFDB_DIR",
+        "/opt/shared/uniref50/uniref50"
+    )
+    config["PSIBLASTDBNAME"] = os.environ.get(
+        "SAAFEC_SEQ_UNIREFDB_NAME",
+        "uniref50"
+    )
+    config["PSIBLASTBASE"] = config["PSIBLASTDBDIR"] + "/" + config["PSIBLASTDBNAME"]
+    config["BLAST_NUM_THREADS"] = int(os.environ.get(
+        "SAAFEC_SEQ_BLAST_NUM_THREADS",
+        "6"
+    ))
+    print(config)
     return config
 
 
@@ -57,27 +72,26 @@ def sequences_features(target_seqn, mutation_resid, wild_aa):
 def run_psiblast(config, file_name, load_existing=False):
     if not (load_existing and os.path.isfile(file_name + ".pssm")):
         psiblast_found = os.path.isfile(os.path.join(config["PSIBLASTDIR"], "psiblast")) 
-        psibloatdb_found = os.path.isdir(config["PSIBLASTBASE"])
+        psiblastdb_found = os.path.isdir(config["PSIBLASTDBDIR"])
         errors = []
         if not psiblast_found:
             errors.append(f"PSIBLAST exe '{os.path.join(config['PSIBLASTDIR'], 'psiblast')}' is missing.")
-        if not psibloatdb_found:
-            errors.append(f"PSIBLASTBASE dir '{config['PSIBLASTBASE']}' is missing.")
-        if psiblast_found and psibloatdb_found:
-            os.system(
-                config["PSIBLASTDIR"]
-                + "/psiblast -query "
-                + file_name
-                + " -num_threads "
-                + str(config["BLAST_NUM_THREADS"])
-                + " -db "
-                + config["PSIBLASTBASE"]
-                + " -num_iterations 3 -out "
-                + file_name
-                + ".out -out_ascii_pssm "
-                + file_name
-                + ".pssm 2>/dev/null"
-            )
+        if not psiblastdb_found:
+            os.system(f"ls -ltr {config['PSIBLASTDBDIR']}")
+            errors.append(f"PSIBLASTBASE dir '{config['PSIBLASTDBDIR']}' is missing.")
+        if psiblast_found and psiblastdb_found:
+            cmd = [
+                f"{config['PSIBLASTDIR']}/psiblast",
+                f"-query {file_name}",
+                f"-num_threads {config['BLAST_NUM_THREADS']}",
+                f"-db {config['PSIBLASTBASE']}",
+                f"-num_iterations 3",
+                f"-out {file_name}.out",
+                f"-out_ascii_pssm {file_name}.pssm",
+                f"2>/data/jobdir/blast.log"
+            ]
+            print(" ".join(cmd))
+            os.system(" ".join(cmd))
         else:
             print("ERROR>> " + "\nERROR>> ".join(errors))
             sys.exit()
