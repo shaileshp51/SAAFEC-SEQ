@@ -36,11 +36,24 @@ The following versions were validated in the worker environment used for deploym
 - `xgboost==0.82`
 - `requests==2.32.3`
 
-### External tools and data
+
+## External tools and data: BLAST+ and UniRef100 setup
 
 - BLAST+ `psiblast`
 - a local UniRef100 PSI-BLAST database
-- `regression.model`
+
+SAAFEC-SEQ requires a local BLAST+ installation and a local UniRef100 database. Install BLAST+ from the official [NCBI BLAST+ download page](https://blast.ncbi.nlm.nih.gov/doc/blast-help/downloadblastdata.html), where NCBI provides the command-line tools and source, and obtain UniRef100 from UniProt’s [downloads page](https://www.uniprot.org/help/downloads) or [UniRef page](https://www.uniprot.org/uniref). :contentReference[oaicite:0]{index=0}
+
+UniRef100 is the 100% clustered UniProt reference set used to reduce redundancy while retaining sequence coverage. :contentReference[oaicite:1]{index=1}
+
+If you already have a formatted BLAST database, point SAAFEC-SEQ at the database prefix. Run `makeblastdb` only when starting from a FASTA file and creating the local BLAST database yourself. :contentReference[oaicite:1]{index=1}
+
+For example, if you are creating a local UniRef100 protein database from a FASTA file, a typical command is:
+```bash
+makeblastdb -in uniref100.fasta -dbtype prot -out /path/to/uniref100/uniref100
+```
+
+Now, update your local SAAFEC-SEQ configuration so it points to the `psiblast` binary directory and the UniRef100 database directory.
 
 If you deviate from the tested stack, keep the same major workflow but expect to verify compatibility in your own environment.
 
