@@ -337,7 +337,7 @@ def pred_feature(label, wild_aa, mutation_aa):
     x = x.reshape((1, len(label)))
     x = xgb.DMatrix(x)
     y_pred = model.predict(x)
-    if y_pred[0] > 0:
+    if y_pred[0] < 0:
         return "%.2f" % y_pred[0] + " Destabilizing"
     else:
         return "%.2f" % y_pred[0] + " Stabilizing"
